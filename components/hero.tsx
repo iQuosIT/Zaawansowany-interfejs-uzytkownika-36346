@@ -14,7 +14,7 @@ export function Hero() {
         </div>
 
         <h1 className="font-serif text-5xl font-bold leading-tight tracking-tight text-foreground md:text-7xl lg:text-8xl text-balance">
-          Where Strategy Meets Elegance
+          Think Two Moves Ahead
         </h1>
 
         <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground md:text-lg text-pretty">
@@ -28,6 +28,11 @@ export function Hero() {
             Start Playing
             <ArrowRight className="h-4 w-4" />
           </Button>
+
+          <Button size="lg" className="px-8 text-base">
+            Analyse games
+          </Button>
+
           <Button variant="outline" size="lg" className="px-8 text-base">
             Watch a Game
           </Button>
