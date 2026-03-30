@@ -1,12 +1,28 @@
-import React, { useState, useReducer } from 'react';
+import React, { useState, useReducer, useEffect } from 'react';
 import { Todo, FilterType } from './types/todo.types';
 import { AddTodoForm } from './components/AddTodoForm';
-import { todoReducer } from './reducers/todoReducer'; // <--- IMPORT REDUCERA
+import { todoReducer } from './reducers/todoReducer';
+
+// Funkcja pomocnicza: bezpieczne pobieranie z localStorage
+const initTodos = (): Todo[] => {
+  try {
+    const localData = localStorage.getItem('todos');
+    return localData ? JSON.parse(localData) : [];
+  } catch (e) {
+    return [];
+  }
+};
 
 export default function App() {
-  // Zmiana z useState na useReducer:
-  const [todos, dispatch] = useReducer(todoReducer, []);
+  // 1. Zmieniamy inicjalizację reducera! Zamiast pustej tablicy [], ładujemy dane z localStorage
+  const [todos, dispatch] = useReducer(todoReducer, [], initTodos);
+  
   const [filter, setFilter] = useState<FilterType>('all');
+
+  // 2. NOWOŚĆ: Efekt, który zapisuje stan za każdym razem, gdy się zmieni
+  useEffect(() => {
+    localStorage.setItem('todos', JSON.stringify(todos));
+  }, [todos]); // Ten kod uruchomi się przy każdym renderze, w którym 'todos' uległo zmianie
 
   const filteredTodos = todos.filter(todo => {
     if (filter === 'active')    return !todo.completed;
@@ -16,7 +32,6 @@ export default function App() {
 
   const activeCount = todos.filter(t => !t.completed).length;
 
-  // Zaktualizowane handlery wysyłające akcje do reducera:
   const handleAdd = (title: string) => {
     dispatch({ type: 'ADD', payload: title });
   };
