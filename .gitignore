@@ -1,0 +1,35 @@
+# Biblioteki i zależności
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# Pliki środowiskowe (Zgodnie z punktem 4.2 instrukcji) [cite: 71]
+# BLOKUJEMY plik z kluczem API
+.env
+.env.production
+.env.local
+.env.*.local
+
+# ZEZWALAMY na plik przykładowy (bez wartości), aby inni wiedzieli co skonfigurować [cite: 74]
+!.env.example
+
+# Logi błędów
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Pliki systemowe i edytorów
+.DS_Store
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# MSW - Mock Service Worker (opcjonalnie, jeśli nie chcesz wersji roboczych)
+# Zazwyczaj plik public/mockServiceWorker.js powinien zostać w gicie, 
+# chyba że instrukcja prowadzącego mówi inaczej.
