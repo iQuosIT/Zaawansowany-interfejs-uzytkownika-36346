@@ -6,7 +6,12 @@ import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import { FavoritesProvider } from './hooks/useFavorites';
 import { ToastProvider } from './components/Toast';
+import { initGA } from './analytics';
 import './index.css';
+
+// Inicjalizacja GA4 przed pierwszym renderem.
+// Cookie consent powinien zostać uzyskany przed tym wywołaniem w środowisku produkcyjnym.
+initGA();
 
 const queryClient = new QueryClient({
   defaultOptions: {

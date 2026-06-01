@@ -3,6 +3,18 @@ import { http, HttpResponse, delay } from 'msw';
 const TMDB_BASE = 'https://api.themoviedb.org/3';
 
 export const handlers = [
+  // Analytics mock — przechwytuje zdarzenia GA4 wysyłane przez analytics.ts.
+  // Zwraca 202 Accepted (standard dla endpointów analitycznych, np. Plausible).
+  // Dzięki temu zdarzenia są widoczne w Network tab bez błędów CORS.
+  http.post('/analytics/event', async ({ request }) => {
+    const body = await request.json() as Record<string, unknown>;
+    console.groupCollapsed(`[Analytics] ${String(body.event)}`);
+    console.log(body);
+    console.groupEnd();
+    return new HttpResponse(null, { status: 202 });
+  }),
+
+
   // 1. Mock listy popularnych filmów (obowiązkowy punkt 1)
   http.get(`${TMDB_BASE}/movie/popular`, async ({ request }) => {
     await delay(800); // symuluje ładowanie

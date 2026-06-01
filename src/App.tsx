@@ -1,9 +1,11 @@
+import { useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { Navbar } from './components/Navbar';
 import HomePage from './pages/HomePage';
 import FavoritesPage from './pages/FavoritesPage';
 import { createPageVariants } from './animations/variants';
+import { trackPageView } from './analytics';
 
 // Etap B - page transitions z AnimatePresence (mode='wait').
 // Klucz `motion.main` = location.pathname -> re-mount przy zmianie trasy.
@@ -11,6 +13,12 @@ export default function App() {
   const location = useLocation();
   const shouldReduce = useReducedMotion();
   const pageVariants = createPageVariants(!!shouldReduce);
+
+  // Pageview — wysyłany przy każdej zmianie ścieżki (SPA routing).
+  // Dane: pathname bez search/hash, aby nie przechwycić parametrów z danymi osobowymi.
+  useEffect(() => {
+    trackPageView(location.pathname);
+  }, [location.pathname]);
 
   return (
     <>

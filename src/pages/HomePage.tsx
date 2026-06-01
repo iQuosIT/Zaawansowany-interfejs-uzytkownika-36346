@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useFetchMovies } from '../hooks/useFetchMovies';
 import { useDebounce } from '../hooks/useDebounce';
 import { MovieList } from '../components/MovieList';
@@ -6,15 +6,37 @@ import { SkeletonCard } from '../components/SkeletonCard';
 import { ErrorBanner } from '../components/ErrorBanner';
 import { EmptyState } from '../components/EmptyState';
 import { MovieModal } from '../components/MovieModal';
+import { trackSearchAbandoned, trackSearchUsed } from '../analytics';
 
 export default function HomePage() {
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState('');
   const [selectedMovieId, setSelectedMovieId] = useState<number | null>(null);
+  // Przechowujemy ostatnią aktywną długość zapytania do detekcji porzucenia.
+  const lastActiveQueryLength = useRef(0);
 
   const debouncedQuery = useDebounce(query, 300);
   const { data, isLoading, isError, error, isPlaceholderData } =
     useFetchMovies(page, debouncedQuery);
+
+  // Zdarzenie: search_used — wyszukiwanie zakończone sukcesem (odpowiednik form submit).
+  // Rejestrowane gdy debouncowany query ma ≥2 znaki i dane zostały załadowane.
+  // Minimalizacja: zbieramy tylko długość zapytania i liczbę wyników, NIE treść query.
+  useEffect(() => {
+    if (debouncedQuery.length >= 2 && !isLoading && data) {
+      trackSearchUsed(debouncedQuery.length, data.results.length);
+      lastActiveQueryLength.current = debouncedQuery.length;
+    }
+  }, [debouncedQuery, isLoading, data]);
+
+  // Zdarzenie: search_abandoned — użytkownik wyczyścił wyszukiwarkę po wpisaniu ≥2 znaków.
+  // Minimalizacja: przekazujemy tylko długość przerwanego zapytania, NIE jego treść.
+  useEffect(() => {
+    if (query === '' && lastActiveQueryLength.current >= 2) {
+      trackSearchAbandoned(lastActiveQueryLength.current);
+      lastActiveQueryLength.current = 0;
+    }
+  }, [query]);
 
   return (
     <div className='page'>

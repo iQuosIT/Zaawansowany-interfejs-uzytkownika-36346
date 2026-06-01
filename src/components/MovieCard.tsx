@@ -3,6 +3,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { useFavorites } from '../hooks/useFavorites';
 import { useToast } from './Toast';
 import { OFFSET, SCALE, SPRING } from '../constants/animations';
+import { trackFavoriteToggle } from '../analytics';
 import type { Movie } from '../hooks/useFetchMovies';
 
 const IMG_BASE = 'https://image.tmdb.org/t/p/w500';
@@ -29,6 +30,8 @@ export function MovieCard({ movie, onSelect }: Props) {
       try {
         const wasAdded = await toggleFavorite(movie);
         setOptimisticFav(null);
+        // CTA click — rejestrujemy działanie użytkownika na głównym przycisku interakcji.
+        trackFavoriteToggle(wasAdded ? 'add' : 'remove', movie.id, movie.title);
         show(
           wasAdded
             ? `Dodano "${movie.title}" do ulubionych`
