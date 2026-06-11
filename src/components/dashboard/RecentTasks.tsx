@@ -9,10 +9,11 @@ import {
   timelineItemClasses,
 } from '@mui/lab';
 import { useTodoContext } from '../../context/TodoContext';
+import { useSettings } from '../../context/SettingsContext';
 
 export default function RecentTasks() {
-  const { state } = useTodoContext();
-  const todos = state?.todos || [];
+  const { todos } = useTodoContext();
+  const { t, language } = useSettings();
 
   const recentTodos = [...todos]
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
@@ -22,12 +23,12 @@ export default function RecentTasks() {
     <Card sx={{ mt: 4 }}>
       <CardContent>
         <Typography variant="h6" fontWeight={600} gutterBottom>
-          Ostatnio dodane zadania
+          {t('recent.heading')}
         </Typography>
         
         {recentTodos.length === 0 ? (
           <Typography color="text.secondary" sx={{ mt: 2 }}>
-            Brak zadań do wyświetlenia.
+            {t('recent.empty')}
           </Typography>
         ) : (
           <Timeline
@@ -57,7 +58,7 @@ export default function RecentTasks() {
                       {todo.title}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
-                      {new Date(todo.createdAt).toLocaleString('pl-PL', { 
+                      {new Date(todo.createdAt).toLocaleString(language === 'pl' ? 'pl-PL' : 'en-US', { 
                         day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' 
                       })}
                     </Typography>

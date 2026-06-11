@@ -58,6 +58,26 @@
   }
 }
 
+/* Widoczny fokus dla nawigacji klawiaturą (WCAG 2.4.7).
+   Używamy :focus-visible, aby pierścień pojawiał się tylko przy obsłudze klawiaturą. */
+:focus-visible {
+  outline: 3px solid #60A5FA;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Respektowanie preferencji użytkownika dotyczącej ograniczenia animacji. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 .skip-link {
   position: absolute;
   top: -100px;

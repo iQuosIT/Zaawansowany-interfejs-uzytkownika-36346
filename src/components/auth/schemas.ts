@@ -33,9 +33,15 @@ export type Step2Data = z.infer<typeof step2Schema>;
 
 // Krok 3: RODO [cite: 426, 428]
 export const step3Schema = z.object({
-  rodo: z.literal(true, {
-    errorMap: () => ({ message: 'Akceptacja RODO jest wymagana' }),
-  }),
+  rodo: z.literal(true, { message: 'Akceptacja RODO jest wymagana' }),
 });
 
 export type Step3Data = z.infer<typeof step3Schema>;
+
+// Logowanie
+export const loginSchema = z.object({
+  email: z.string().min(1, 'E-mail jest wymagany').email('Podaj poprawny adres e-mail'),
+  password: z.string().min(8, 'Hasło musi mieć co najmniej 8 znaków'),
+});
+
+export type LoginData = z.infer<typeof loginSchema>;

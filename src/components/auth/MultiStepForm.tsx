@@ -3,6 +3,7 @@ import { Step1 } from './Step1';
 import { Step2 } from './Step2';
 import { Step3 } from './Step3';
 import { Step1Data, Step2Data } from './schemas';
+import { useAuth } from '../../context/AuthContext';
 
 // Dodajemy interfejs dla propsów, aby przyjąć funkcję onCancel
 interface MultiStepFormProps {
@@ -10,11 +11,19 @@ interface MultiStepFormProps {
 }
 
 export default function MultiStepForm({ onCancel }: MultiStepFormProps) {
+  const { login } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<{ step1?: Step1Data; step2?: Step2Data }>({});
   const [serverError, setServerError] = useState<string | null>(null);
   const [statusMsg, setStatusMsg] = useState('');
   const headingRef = useRef<HTMLHeadingElement>(null);
+
+  const handleRegistrationSuccess = () => {
+    if (formData.step1) {
+      login(`${formData.step1.firstName} ${formData.step1.lastName}`);
+    }
+    setCurrentStep(4);
+  };
 
   const stepTitles = ["Krok 1: Dane osobowe", "Krok 2: Preferencje", "Krok 3: Potwierdzenie"];
 
@@ -119,7 +128,7 @@ export default function MultiStepForm({ onCancel }: MultiStepFormProps) {
         <Step3 
           data={formData} 
           onBack={() => setCurrentStep(2)}
-          onSuccess={() => setCurrentStep(4)}
+          onSuccess={handleRegistrationSuccess}
           onEmailTaken={handleEmailTaken}
           onServerError={(msg) => setServerError(msg)}
         />

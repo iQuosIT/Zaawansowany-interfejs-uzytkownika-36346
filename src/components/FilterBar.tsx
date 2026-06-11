@@ -1,4 +1,6 @@
+import { ToggleButton, ToggleButtonGroup } from '@mui/material';
 import { FilterType } from '../types/todo.types';
+import { useSettings } from '../context/SettingsContext';
 
 interface FilterBarProps {
   activeFilter: FilterType;
@@ -6,26 +8,30 @@ interface FilterBarProps {
 }
 
 export const FilterBar = ({ activeFilter, onFilterChange }: FilterBarProps) => {
+  const { t } = useSettings();
+
+  const options: { value: FilterType; label: string }[] = [
+    { value: 'all', label: t('filter.all') },
+    { value: 'active', label: t('filter.active') },
+    { value: 'completed', label: t('filter.completed') },
+  ];
+
   return (
-    <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
-      <button 
-        onClick={() => onFilterChange('all')}
-        style={{ fontWeight: activeFilter === 'all' ? 'bold' : 'normal' }}
-      >
-        Wszystkie
-      </button>
-      <button 
-        onClick={() => onFilterChange('active')}
-        style={{ fontWeight: activeFilter === 'active' ? 'bold' : 'normal' }}
-      >
-        Aktywne
-      </button>
-      <button 
-        onClick={() => onFilterChange('completed')}
-        style={{ fontWeight: activeFilter === 'completed' ? 'bold' : 'normal' }}
-      >
-        Zakończone
-      </button>
-    </div>
+    <ToggleButtonGroup
+      value={activeFilter}
+      exclusive
+      onChange={(_, value: FilterType | null) => value && onFilterChange(value)}
+      aria-label={t('filter.aria')}
+      size="small"
+      color="primary"
+    >
+      {options.map((opt) => (
+        <ToggleButton key={opt.value} value={opt.value} aria-label={opt.label}>
+          {opt.label}
+        </ToggleButton>
+      ))}
+    </ToggleButtonGroup>
   );
 };
+
+export default FilterBar;

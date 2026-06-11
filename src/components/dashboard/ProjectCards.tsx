@@ -1,25 +1,27 @@
 import { Box, Card, CardContent, Typography, Button, CardMedia } from '@mui/material';
+import { useSettings } from '../../context/SettingsContext';
+import type { TranslationKey } from '../../i18n/translations';
 
-// Dane zgodne z Twoją makietą Lab 3 [cite: 472, 474, 478]
-const projects = [
+const projects: { titleKey: TranslationKey; descKey: TranslationKey; img: string }[] = [
   {
-    title: 'Projekty firmowe',
-    desc: 'Zarządzanie zespołem i budżetem',
-    img: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=500' 
+    titleKey: 'projects.p1.title',
+    descKey: 'projects.p1.desc',
+    img: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=500',
   },
   {
-    title: 'Lista zakupów',
-    desc: 'Mleko, pieczywo, rzeczy na grilla',
-    img: 'https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=500'
+    titleKey: 'projects.p2.title',
+    descKey: 'projects.p2.desc',
+    img: 'https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=500',
   },
   {
-    title: 'Zadania domowe',
-    desc: 'Zadanie z matematyki i polskiego',
-    img: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=500'
-  }
+    titleKey: 'projects.p3.title',
+    descKey: 'projects.p3.desc',
+    img: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=500',
+  },
 ];
 
 export default function ProjectCards() {
+  const { t } = useSettings();
   return (
     <Box sx={{
       display: 'grid',
@@ -40,7 +42,7 @@ export default function ProjectCards() {
           <CardMedia
             component="img"
             image={project.img}
-            alt={project.title}
+            alt={t(project.titleKey)}
             sx={{
               // LAB 6: Nowoczesne zachowanie proporcji obrazu [cite: 119-122]
               aspectRatio: '16/9',
@@ -49,21 +51,26 @@ export default function ProjectCards() {
           />
           <CardContent sx={{ flexGrow: 1, p: 3 }}>
             <Typography variant="h6" fontWeight="700" sx={{ mb: 1 }}>
-              {project.title}
+              {t(project.titleKey)}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-              {project.desc}
+              {t(project.descKey)}
             </Typography>
-            <Button 
-              variant="contained" 
-              fullWidth 
-              sx={{ 
-                borderRadius: '8px', 
+            <Button
+              type="button"
+              variant="contained"
+              fullWidth
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              sx={{
+                borderRadius: '8px',
                 textTransform: 'none',
-                fontWeight: '600'
+                fontWeight: '600',
               }}
             >
-              Zobacz zadania
+              {t('projects.openTasks')}
             </Button>
           </CardContent>
         </Card>

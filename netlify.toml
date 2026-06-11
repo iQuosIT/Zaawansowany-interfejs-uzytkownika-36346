@@ -1,0 +1,5 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# Aplikacja używa HashRouter, więc dodatkowe reguły przekierowań nie są wymagane.

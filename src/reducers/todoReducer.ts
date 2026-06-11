@@ -1,31 +1,37 @@
-import { Todo, TodoAction } from '../types/todo.types';
+import { TodoState, TodoAction } from '../types/todo.types';
 
-export function todoReducer(state: Todo[], action: TodoAction): Todo[] {
+export const initialTodoState: TodoState = {
+  todos: [],
+  status: 'idle',
+  error: null,
+};
+
+export function todoReducer(state: TodoState, action: TodoAction): TodoState {
   switch (action.type) {
-    case 'ADD':
-      // TODO (4a): Zwracamy nową tablicę z nowym zadaniem na początku
-      return [
-        {
-          id: crypto.randomUUID(),
-          title: action.payload,
-          completed: false,
-          createdAt: new Date(),
-        },
+    case 'REQUEST_START':
+      return { ...state, status: 'loading', error: null };
+
+    case 'REQUEST_ERROR':
+      return { ...state, status: 'error', error: action.payload };
+
+    case 'SET_TODOS':
+      return { ...state, status: 'success', error: null, todos: action.payload };
+
+    case 'UPSERT_TODO': {
+      const exists = state.todos.some((t) => t.id === action.payload.id);
+      const todos = exists
+        ? state.todos.map((t) => (t.id === action.payload.id ? action.payload : t))
+        : [action.payload, ...state.todos];
+      return { ...state, status: 'success', error: null, todos };
+    }
+
+    case 'REMOVE_TODO':
+      return {
         ...state,
-      ];
-
-    case 'TOGGLE':
-      return state.map((todo) =>
-        todo.id === action.payload ? { ...todo, completed: !todo.completed } : todo
-      );
-
-    case 'DELETE':
-      return state.filter((todo) => todo.id !== action.payload);
-
-    case 'EDIT':
-      return state.map((t) =>
-        t.id === action.payload.id ? { ...t, title: action.payload.title } : t
-      );
+        status: 'success',
+        error: null,
+        todos: state.todos.filter((t) => t.id !== action.payload),
+      };
 
     default:
       return state;

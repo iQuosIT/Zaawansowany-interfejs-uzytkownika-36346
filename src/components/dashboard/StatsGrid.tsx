@@ -4,14 +4,14 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import StatsCard from './StatsCard';
 import { useTodoContext } from '../../context/TodoContext';
+import { useSettings } from '../../context/SettingsContext';
 
 export default function StatsGrid() {
-  const { state } = useTodoContext(); 
-  
-  const todos = state?.todos || [];
+  const { todos } = useTodoContext();
+  const { t } = useSettings();
 
   const total = todos.length;
-  const completed = todos.filter((todo: any) => todo.completed).length;
+  const completed = todos.filter((todo) => todo.completed).length;
   const pending = total - completed;
 
   return (
@@ -23,21 +23,21 @@ export default function StatsGrid() {
       mb: 3
     }}>
       <StatsCard 
-        title='Wszystkie zadania' 
+        title={t('stats.total')} 
         value={total} 
         icon={FormatListBulletedIcon} 
         color='#1565C0' 
         bgColor='#E3F2FD' 
       />
       <StatsCard 
-        title='Ukończone' 
+        title={t('stats.completed')} 
         value={completed} 
         icon={CheckCircleIcon} 
         color='#2E7D32' 
         bgColor='#E8F5E9' 
       />
       <StatsCard 
-        title='Oczekujące' 
+        title={t('stats.pending')} 
         value={pending} 
         icon={RadioButtonUncheckedIcon} 
         color='#E65100' 
