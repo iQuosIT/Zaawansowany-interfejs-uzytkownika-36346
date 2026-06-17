@@ -217,29 +217,118 @@ Adres będzie miał postać: `https://<login>.github.io/Zaawansowany-interfejs-u
 
 ## Notatka UX
 
-### Grupa docelowa / persona
+Poniższy dokument opisuje decyzje projektowe aplikacji **TaskFlow** z perspektywy użytkownika końcowego. Stanowi uzasadnienie kluczowych wyborów interfejsu i odnosi je do heurystyk użyteczności Nielsena oraz zasad projektowania zorientowanego na użytkownika (UCD — *User-Centered Design*).
 
-> **Ania, 24 lata, studentka i freelancerka.** Codziennie żongluje obowiązkami na uczelni
-> i drobnymi zleceniami. Korzysta głównie z telefonu, ceni szybkość i przejrzystość.
-> Potrzebuje narzędzia, w którym w kilka sekund doda zadanie, oznaczy je jako zrobione
-> i będzie widzieć postęp — bez logowania i zbędnych kroków.
+### 1. Grupa docelowa
 
-### Zasady projektowania zorientowanego na użytkownika (UCD)
+#### Persona główna: Ania (24 lata)
 
-- **Niski próg wejścia** — aplikacja działa od razu, bez rejestracji i konfiguracji (rejestracja jest opcjonalną demonstracją formularzy).
-- **Mobile-first** — układ i nawigacja zaprojektowane pod ekrany dotykowe (cele dotykowe ≥ 44 px, mobilny drawer).
-- **Natychmiastowa informacja zwrotna** — każda akcja kończy się widocznym potwierdzeniem (snackbar) lub komunikatem błędu.
+Ania jest studentką trzeciego roku i freelancerką (copywriting, social media). Codziennie przełącza się między obowiązkami uczelnianymi a kilkoma drobnymi zleceniami. Korzysta głównie ze smartfona — często w krótkich przerwach między zajęciami — i oczekuje narzędzia, które **nie wymaga konfiguracji ani długiego wdrażania**.
 
-### Odniesienie do heurystyk Nielsena
+| Cecha | Opis |
+| --- | --- |
+| **Cel** | Szybkie zapisanie zadania, oznaczenie go jako ukończone, podgląd postępu |
+| **Kontekst użycia** | Mobilny, często jednoręczny; krótkie sesje (30 s – 2 min) |
+| **Frustracje** | Skomplikowane formularze, brak informacji zwrotnej, konieczność logowania przed pierwszą akcją |
+| **Oczekiwania** | Przejrzysty interfejs, ciemny motyw (praca wieczorem), natychmiastowa reakcja aplikacji |
 
-1. **Widoczność statusu systemu** — spinnery (ładowanie), snackbary (sukces/błąd), wskaźnik „Synchronizacja…”, liczniki statystyk.
-2. **Dopasowanie do świata rzeczywistego** — język polski, zrozumiałe etykiety („Dodaj zadanie”, „Priorytet: Wysoki”).
-3. **Kontrola i swoboda użytkownika** — przyciski „Anuluj”/„Wstecz”, możliwość edycji i usuwania zadań, wyjście ze strony 404.
-4. **Zapobieganie błędom** — walidacja formularzy (Zod) blokuje błędne dane, przycisk wysyłki jest zablokowany w trakcie zapisu.
-5. **Rozpoznawanie zamiast przypominania** — wyraźne ikony akcji (edycja/usuwanie), filtry stanu, podsumowanie danych przed rejestracją.
-6. **Estetyka i minimalizm** — spójny ciemny motyw, czytelna hierarchia, brak zbędnych elementów.
-7. **Pomoc w rozpoznaniu i naprawie błędów** — komunikaty błędów są opisowe i wskazują rozwiązanie („Spróbuj ponownie”).
-8. **Elastyczność i wydajność** — wyszukiwarka i filtry zadań, skróty (Enter w formularzu), skip link dla zaawansowanych.
+#### Persona wtórna: Marek (32 lata)
+
+Marek pracuje zdalnie jako developer. Korzysta z aplikacji głównie na laptopie, ceni **dostępność klawiaturową**, spójną nawigację i możliwość personalizacji (motyw, język, kolor akcentu). Dla niego kluczowe są filtry zadań, statystyki na dashboardzie oraz czytelne komunikaty błędów sieciowych.
+
+Obie persony łączy potrzeba **niskiego progu wejścia** — aplikacja musi działać od razu po wejściu na stronę, bez instalacji backendu i bez obowiązkowej rejestracji.
+
+### 2. Proces projektowy (UCD)
+
+Projektowanie przebiegało zgodnie z iteracyjnym cyklem UCD (Norman & Nielsen):
+
+1. **Zrozumienie kontekstu** — analiza konkurencji (Todoist, Microsoft To Do, Google Tasks) oraz identyfikacja wspólnych wzorców: lista + filtr + modal dodawania.
+2. **Definicja wymagań** — checklista zaliczeniowa ZIU (routing, formularze, stany async, dostępność, responsywność).
+3. **Prototypowanie** — szkice lo-fi → makieta hi-fi (ciemny motyw, akcent `#3B82F6`) → implementacja w React (patrz sekcja [Prototypowanie](#-prototypowanie)).
+4. **Ewaluacja** — weryfikacja w Lighthouse/AXE, testy manualne na mobile (Chrome DevTools) oraz obserwacja własna podczas codziennego użytkowania prototypu.
+
+Każda iteracja kończyła się korektą na podstawie tego, czy użytkownik potrafi **samodzielnie** wykonać główny scenariusz: dodać zadanie → oznaczyć jako ukończone → zobaczyć zmianę na dashboardzie.
+
+### 3. Kluczowe wybory UI/UX i ich uzasadnienie
+
+#### 3.1. Dashboard jako punkt startowy
+
+Strona główna (`/`) pełni rolę **centrum orientacji**: hero z jasnym wezwaniem do działania (CTA), podgląd postępu (pasek `LinearProgress` + trzy ostatnie zadania) oraz — po zalogowaniu — siatka statystyk. Użytkownik od razu widzi, „gdzie jest" i co może zrobić dalej, bez konieczności eksploracji menu.
+
+**Uzasadnienie:** Zgodnie z heurystyką *rozpoznawania zamiast przypominania* kluczowe informacje (postęp, liczba zadań) są widoczne na pierwszym ekranie, a nie ukryte w podmenu.
+
+#### 3.2. Ciemny motyw i personalizacja
+
+Domyślny motyw ciemny redukuje zmęczenie wzroku przy pracy wieczorem (typowy kontekst persony Ani). W Ustawieniach użytkownik może przełączyć motyw jasny/ciemny, wybrać kolor akcentu spośród pięciu opcji oraz włączyć tryb ograniczonego ruchu. Preferencje są trwale zapisywane w `localStorage`.
+
+**Uzasadnienie:** Elastyczność i szacunek dla indywidualnych preferencji (heurystyka *elastyczności i wydajności*). Szybki przełącznik motywu w nagłówku skraca ścieżkę dla użytkowników, którzy nie chcą przechodzić do Ustawień.
+
+#### 3.3. Modal zamiast osobnej strony do dodawania zadania
+
+Dodawanie i edycja zadania odbywa się w oknie modalnym (`AddTaskModal`), które nie zabiera użytkownika z kontekstu listy. Formularz zawiera tytuł, priorytet i — w trybie demonstracyjnym — przełącznik symulacji błędu sieci.
+
+**Uzasadnienie:** Modal zachowuje *kontekst i swobodę* — użytkownik widzi listę pod spodem i może anulować bez utraty miejsca w aplikacji. Walidacja Zod (`mode: 'onBlur'`) informuje o błędach tuż przy polu, zanim użytkownik wyśle formularz.
+
+#### 3.4. Filtry jako grupa przełączników (ToggleButtonGroup)
+
+Filtry „Wszystkie / Aktywne / Ukończone" to widoczna grupa przycisków z wyraźnym stanem aktywnym, a nie rozwijane menu.
+
+**Uzasadnienie:** Wszystkie opcje są *rozpoznawalne od razu* — użytkownik nie musi otwierać listy, aby zobaczyć dostępne filtry. Komponent MUI zapewnia obsługę klawiatury i atrybut `aria-label`.
+
+#### 3.5. Rejestracja wieloetapowa (3 kroki + podsumowanie)
+
+Formularz rejestracji dzieli dane na trzy logiczne etapy: dane osobowe → preferencje → potwierdzenie. Każdy krok ma własny nagłówek z zarządzaniem fokusem (`headingRef.focus()`) i regionem `aria-live`, który ogłasza zmianę kroku czytnikom ekranu.
+
+**Uzasadnienie:** Dzielenie długiego formularza na kroki obniża *obciążenie poznawcze* (Miller: 7±2 elementy). Podsumowanie w kroku 3 pozwala zweryfikować dane przed wysłaniem — zgodnie z zasadą *zapobiegania błędom*.
+
+#### 3.6. Responsywna nawigacja: pasek + drawer mobilny
+
+Na desktopie nawigacja jest wyśrodkowana w sticky nagłówku; na mobile pojawia się ikona hamburgera otwierająca `Drawer` z prawej strony. Cele dotykowe mają minimalną wysokość ≥ 44 px (wytyczne WCAG 2.5.5).
+
+**Uzasadnienie:** Podejście *mobile-first* — nawigacja nie jest „uproszczona" na małym ekranie, lecz przeniesiona do wysuwanego panelu, co zachowuje pełną funkcjonalność bez przepełnienia nagłówka.
+
+#### 3.7. Stany asynchroniczne i informacja zwrotna
+
+Każda operacja API (MSW z opóźnieniem ~600 ms) przechodzi przez wyraźne stany: `loading` (spinner, `aria-busy`), `success` (snackbar zielony), `error` (alert z przyciskiem „Spróbuj ponownie"). Globalny `FeedbackContext` zapewnia spójność powiadomień w całej aplikacji.
+
+**Uzasadnienie:** Bezpośrednia realizacja heurystyki *widoczności statusu systemu* — użytkownik nigdy nie pozostaje w niepewności, czy akcja się powiodła.
+
+#### 3.8. Dostępność jako element projektowy, nie dodatek
+
+Skip link („Przejdź do treści głównej"), semantyczny HTML (`header`, `main`, `nav`, `footer`), widoczny fokus (`:focus-visible`), obsługa `prefers-reduced-motion` (hook `useAppReducedMotion`) oraz kontrast AA — wszystko to wpisane w architekturę komponentów od początku.
+
+**Uzasadnienie:** Inkluzywność rozszerza grupę docelową o użytkowników klawiatury i czytników ekranu (persona Marek) bez pogarszania doświadczenia pozostałych.
+
+### 4. Mapowanie na heurystyki Nielsena
+
+Poniższa tabela pokazuje, jak każda z dziesięciu heurystyk została uwzględniona w TaskFlow:
+
+| # | Heurystyka | Realizacja w aplikacji |
+| --- | --- | --- |
+| 1 | **Widoczność statusu systemu** | Spinnery ładowania, snackbary sukcesu/błędu, wskaźnik „Synchronizacja…", pasek postępu na dashboardzie, liczniki statystyk |
+| 2 | **Dopasowanie do świata rzeczywistego** | Polski/angielski interfejs, etykiety zrozumiałe dla laika („Dodaj zadanie", „Priorytet: Wysoki"), ikony powszechnie rozpoznawalne (check, kosz, ołówek) |
+| 3 | **Kontrola i swoboda użytkownika** | Przyciski „Anuluj"/„Wstecz" w modalu i rejestracji, edycja/usuwanie zadań, wylogowanie jednym kliknięciem, powrót ze strony 404 |
+| 4 | **Spójność i standardy** | Material Design (MUI) jako spójny system komponentów; jednolite zaokrąglenia (`borderRadius: 8px`), hierarchia typografii, aktywny link zawsze w kolorze akcentu |
+| 5 | **Zapobieganie błędom** | Walidacja Zod blokuje puste/niepoprawne pola; przycisk zapisu disabled w trakcie `isSubmitting`; potwierdzenie danych w kroku 3 rejestracji |
+| 6 | **Rozpoznawanie zamiast przypominania** | Filtry widoczne od razu, ikony akcji przy każdym zadaniu, podsumowanie przed rejestracją, breadcrumb kroków formularza |
+| 7 | **Elastyczność i wydajność** | Filtry + wyszukiwarka zadań, skrót Enter w formularzach, skip link, szybki przełącznik motywu, personalizacja akcentu i języka |
+| 8 | **Estetyka i minimalizm** | Ciemny motyw z ograniczoną paletą, brak zbędnych dekoracji; treść skupiona na zadaniach; animacje subtelne i wyłączalne |
+| 9 | **Pomoc w rozpoznaniu i naprawie błędów** | Komunikaty błędów opisowe (np. „Nie udało się zapisać — spróbuj ponownie"), walidacja inline przy polach formularza, alert z akcją retry |
+| 10 | **Pomoc i dokumentacja** | Etykiety pól, tooltipy (np. kolory akcentu), placeholder tekstowy w polach, strona Ustawień z opisem każdej opcji |
+
+### 5. Wnioski z własnych obserwacji
+
+Podczas testów manualnych prototypu (telefon + laptop, Chrome/Edge) zanotowano:
+
+- **Czas do pierwszej akcji** — użytkownik dodaje pierwsze zadanie w ≤ 3 kliknięciach od wejścia na stronę (Dashboard → „Przejdź do zadań" → „Dodaj zadanie"), co potwierdza niski próg wejścia.
+- **Mobilny drawer** — umieszczenie menu po prawej stronie ułatwia obsługę jedną ręką (kciuk); na desktopie nawigacja pozostaje zawsze widoczna, co eliminuje zbędne kliknięcia.
+- **Animacje** — bez `prefers-reduced-motion` przejścia Framer Motion poprawiają orientację w przestrzeni (użytkownik wie, że zmienił ekran); z włączonym trybem reduced motion animacje są wyłączane — brak zgłoszeń dezorientacji.
+- **Symulacja błędu sieci** — przełącznik w modalu pozwolił zweryfikować, że alert + „Spróbuj ponownie" redukuje frustrację; bez tego użytkownik mógłby wielokrotnie klikać „Zapisz" bez efektu.
+- **Audyt Lighthouse (Accessibility)** — aplikacja osiąga wysoki wynik dzięki semantycznemu HTML i atrybutom ARIA; jedynym obszarem do dalszej pracy jest kontrast niektórych stanów `disabled` w motywie jasnym.
+
+### 6. Podsumowanie
+
+TaskFlow projektowano wokół realnych potrzeb studentów i pracowników zdalnych: szybkość, przejrzystość i brak barier wejścia. Kluczowe decyzje — dashboard orientacyjny, modal kontekstowy, wieloetapowa rejestracja, spójne stany async i wbudowana dostępność — wynikają bezpośrednio z heurystyk Nielsena i iteracyjnego procesu UCD. Aplikacja spełnia kryterium projektu: **działa, a użytkownik może z niej skorzystać samodzielnie**, bez instrukcji obsługi.
 
 ---
 
